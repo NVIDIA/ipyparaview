@@ -1,0 +1,127 @@
+{
+  "family" : "OSPRay",
+  "version" : "0.0",
+  "materials" : {
+    "Green Paint": {
+      "type": "CarPaint",
+      "doubles" : {
+          "baseColor" : [0.115, 1.0, 0.0],
+          "coatColor" : [0.292, 0.824, 0.076],
+          "flakeDensity" : [0.7],
+          "flakeRoughness" : [0.3],
+          "flakeScale" : [10000.0],
+          "flakeSpread" : [0.35]
+      }
+    },
+    "Logo": {
+      "type": "Principled",
+      "doubles" : {
+        "coatColor" : [1.0, 1.0, 1.0],
+        "coat" : [0.6],
+        "metallic" : [1.0],
+        "roughness" : [0.2]
+      },
+      "textures" : {
+        "baseColorMap" : "/notebooks/NVIDIA_Logo.jpg"
+      }      
+    },
+    "Glass": {
+      "type": "ThinGlass",
+      "doubles" : {
+          "attenuationColor" : [0.85, 0.9, 1.0]
+      }
+    },
+    "Chromium": {
+      "type": "Metal",
+      "doubles" : {
+          "eta" : [3.2, 3.1, 2.3],
+          "k" : [3.3, 3.3, 3.1],
+          "roughness" : [0.2]
+      }
+    },
+
+    "Red Glass": {
+      "type": "ThinGlass",
+      "doubles" : {
+          "attenuationColor" : [1.0, 0.0, 0.0]
+      }
+    },
+
+    "Black Paint": {
+      "type": "CarPaint",
+      "doubles" : {
+          "baseColor" : [0.11, 0.097, 0.0097],
+          "coatColor" : [0.053, 0.055, 0.052],
+          "flakeDensity" : [0.5],
+          "flakeRoughness" : [0.3],
+          "flakeScale" : [10000.0],
+          "flakeSpread" : [0.3]
+      }
+    },
+
+    "Metal": {
+      "type": "Metal",
+      "doubles" : {
+          "eta" : [1.5, 0.98, 0.6],
+          "k" : [7.6, 6.6, 5.4],
+          "roughness" : [0.2]
+      }
+    },
+
+    "Gold": {
+      "type": "Metal",
+      "doubles" : {
+          "eta" : [0.07, 0.37, 1.5],
+          "k" : [3.7, 2.3, 1.7],
+          "roughness" : [0.2]
+      }
+    },
+
+    "Rubber": {
+      "type": "Principled",
+      "doubles" : {
+          "baseColor" : [0.15, 0.15, 0.15],
+          "metallic" : [0.8],
+          "roughness" : [0.6]
+      }
+    },
+
+    "Amber": {
+      "type": "Glass",
+      "doubles" : {
+          "attenuationColor" : [1.0, 0.91, 0.084],
+          "attenuationDistance" : [0.7],
+          "eta" : [1.55]
+      }
+    },
+
+    "Water": {
+      "type": "Glass",
+      "doubles" : {
+          "attenuationColor" : [0.0, 0.559, 1.0],
+          "attenuationDistance" : [1.0],
+          "eta" : [1.33]
+      }
+    },
+
+    "Diamond": {
+      "type": "Glass",
+      "doubles" : {
+          "attenuationColor" : [0.96, 0.96, 1.0],
+          "attenuationDistance" : [1.0],
+          "eta" : [1.5]
+      }
+    },
+
+    "Air": {
+      "type": "Glass",
+      "doubles" : {
+          "attenuationColor" : [1.0, 1.0, 1.0],
+          "attenuationDistance" : [1.0],
+          "eta" : [1.0]
+      }
+    }
+
+  }
+}
+
