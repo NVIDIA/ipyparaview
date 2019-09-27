@@ -1,0 +1,2 @@
+recursive-include ipyparaview/static *.*
+include ipyparaview.json
