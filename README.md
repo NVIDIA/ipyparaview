@@ -5,14 +5,15 @@ A widget for interactive server-side ParaView rendering. Note that this requires
 
 Installation
 ------------
+Note that both the regular and developer installs currently require nodejs (for npm) in addition to the regular tools.
 
-To install use pip:
+For a regular user installation:
 
-    $ pip install https://github.com/NickLeaf/ipyparaview.git
+    $ pip install git+https://github.com/NickLeaf/ipyparaview.git
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
 
 
-For a development installation (requires npm),
+For a development installation:
 
     $ git clone https://github.com/NickLeaf/ipyparaview.git
     $ cd ipyparaview
