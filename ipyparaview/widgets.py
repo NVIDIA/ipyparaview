@@ -38,20 +38,37 @@ class PVDisplay(widgets.DOMWidget):
     camu = Tuple((0,1,0)).tag(sync=True) #TODO: interactively set this
     fpsLimit = Float(60.0).tag(sync=True) #maximum render rate
 
-    # regular vars
-    pvs,renV,w2i = None,None,None #used for Jupyter kernel rendering
-    master,renderers = None,[] #used for Dask rendering
-    mode = 'Jupyter'
-    tp = time.time() #time of latest render
-    fps = 10.0
-    fpsOut = [] #FPS output ipywidgets; passed in from Jupyter
-    intyld = [0.05, 0.01] #interaction yield--period and duration
-    tiy = time.time() #time of last interaction yield
+    # class variables
+    instances = dict()
+
+    @classmethod
+    def GetOrCreate(cls, ren, runAsync=True, **kwargs):
+        """
+        Check if a PVDisplay instance already exists for the renderer. If yes, return that instance; otherwise, create a new one.
+        """
+        instance = cls.instances.get(ren, None)
+        if instance is None:
+            instance = PVDisplay(ren, runAsync, **kwargs)
+            cls.instances.update({ ren : instance })
+        return instance
 
     def __init__(self, ren, runAsync=True, **kwargs):
+        if ren in PVDisplay.instances:
+            raise RuntimeError(f"A PVDisplay instance already exists for this renderer. Use PVDisplay.GetOrCreate() to avoid this error.")
+
         super(PVDisplay, self).__init__(**kwargs) #must call super class init
 
         import numpy as np
+
+        # regular vars
+        self.pvs, self.renV, self.w2i = None,None,None #used for Jupyter kernel rendering
+        self.master, self.renderers = None,[] #used for Dask rendering
+        self.mode = 'Jupyter'
+        self.tp = time.time() #time of latest render
+        self.fps = 10.0
+        self.fpsOut = [] #FPS output ipywidgets; passed in from Jupyter
+        self.intyld = [0.05, 0.01] #interaction yield--period and duration
+        self.tiy = time.time() #time of last interaction yield
 
         # see if we can import Dask.distributed, then try guessing the render
         # mode based on the type of ren. Fallback to regular Jupyter rendering
