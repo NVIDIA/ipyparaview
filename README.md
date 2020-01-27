@@ -15,7 +15,7 @@ For a regular user installation:
 
 For a development installation:
 
-    $ git clone https://github.com/NickLeaf/ipyparaview.git
+    $ git clone https://github.com/NVIDIA/ipyparaview.git
     $ cd ipyparaview
     $ pip install -e .
     $ jupyter nbextension install --py --symlink --sys-prefix ipyparaview
