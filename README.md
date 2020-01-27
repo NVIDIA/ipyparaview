@@ -9,7 +9,7 @@ Note that both the regular and developer installs currently require nodejs (for 
 
 For a regular user installation:
 
-    $ pip install git+https://github.com/NickLeaf/ipyparaview.git
+    $ pip install git+https://github.com/NVIDIA/ipyparaview.git
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
 
 
