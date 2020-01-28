@@ -1,6 +1,6 @@
 {
   "name": "ipyparaview",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A widget for interactive server-side ParaView rendering",
   "author": "Nick Leaf",
   "main": "lib/index.js",
@@ -31,7 +31,7 @@
     "rimraf": "^2.6.1"
   },
   "dependencies": {
-    "@jupyter-widgets/base": "^1.0.0",
+    "@jupyter-widgets/base": "^1.1 || ^2",
     "lodash": "^4.17.4"
   },
   "jupyterlab": {
