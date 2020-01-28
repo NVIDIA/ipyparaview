@@ -1,4 +1,4 @@
-A widget for interactive server-side ParaView rendering
+iPython widget for server-side ParaView rendering in Jupyter.
 
 Package Install
 ---------------

@@ -12,8 +12,12 @@ For a regular user installation:
     $ pip install git+https://github.com/NVIDIA/ipyparaview.git
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
 
+To install for jupyterlab
 
-For a development installation:
+    $ jupyter labextension install @jupyter-widgets/jupyterlab-manager
+    $ jupyter labextension install ipyparaview
+
+For a development installation (requires npm),
 
     $ git clone https://github.com/NVIDIA/ipyparaview.git
     $ cd ipyparaview
