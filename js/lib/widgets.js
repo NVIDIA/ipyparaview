@@ -23,8 +23,8 @@ var PVDisplayModel = widgets.DOMWidgetModel.extend({
         _view_name : 'PVDisplayView',
         _model_module : 'ipyparaview',
         _view_module : 'ipyparaview',
-        _model_module_version : '0.1.0',
-        _view_module_version : '0.1.0'
+        _model_module_version : '0.1.1',
+        _view_module_version : '0.1.1'
     })
 });
 

@@ -1,3 +1,4 @@
+*.swp
 *.egg-info/
 .ipynb_checkpoints/
 dist/
@@ -7,6 +8,7 @@ node_modules/
 
 # Compiled javascript
 ipyparaview/static/
+js/package-lock.json
 
 # OS X
 .DS_Store

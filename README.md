@@ -19,7 +19,12 @@ From within a conda environment:
     $ pip install git+https://github.com/NVIDIA/ipyparaview.git
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
 
-For a development installation:
+To install for jupyterlab
+
+    $ jupyter labextension install @jupyter-widgets/jupyterlab-manager
+    $ jupyter labextension install ipyparaview
+
+For a development installation (requires npm),
 
     $ git clone https://github.com/NVIDIA/ipyparaview.git
     $ cd ipyparaview
