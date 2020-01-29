@@ -11,6 +11,12 @@ For a regular user installation:
 
     $ pip install git+https://github.com/NVIDIA/ipyparaview.git
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
+    
+From within a conda environment:
+
+    $ conda env create -f environment.yml
+    $ conda activate ipy_dev
+    $ ./rebuild.sh
 
 To install for jupyterlab
 
@@ -25,3 +31,15 @@ For a development installation (requires npm),
     $ jupyter nbextension install --py --symlink --sys-prefix ipyparaview
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
     $ jupyter labextension install js (*optional*)
+
+
+Running
+-------
+Within a conda environment
+
+    $ conda activate ipy_dev
+    $ export LD_LIBRARY_PATH=$PVPATH/lib/
+    $ export PYTHONPATH=$PVPATH/lib/python3.7/site-packages/
+    $ jupyter notebook
+    
+
