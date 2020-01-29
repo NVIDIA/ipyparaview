@@ -1,10 +1,10 @@
 # Environment for ipyparaview with jupyterlab
-# python 3.7?
 name: ipy_dev
 channels:
 - conda-forge
 dependencies:
 - python=3.7.4
+- ipywidgets
 - jupyter
 - jupyterlab
 - ipython
