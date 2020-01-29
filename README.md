@@ -16,8 +16,7 @@ From within a conda environment:
 
     $ conda env create -f environment.yml
     $ conda activate ipy_dev
-    $ pip install git+https://github.com/NVIDIA/ipyparaview.git
-    $ jupyter nbextension enable --py --sys-prefix ipyparaview
+    $ ./rebuild.sh
 
 To install for jupyterlab
 
@@ -43,5 +42,4 @@ Within a conda environment
     $ export PYTHONPATH=$PVPATH/lib/python3.7/site-packages/
     $ jupyter notebook
     
-
 
