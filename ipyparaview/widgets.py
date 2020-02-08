@@ -34,9 +34,6 @@ class PVDisplay(widgets.DOMWidget):
     # traitlets -- variables synchronized with front end
     frame = Bytes().tag(sync=True)
     resolution = Tuple((800,500)).tag(sync=True) #canvas resolution; w,h
-    camf = Tuple((0,0,0)).tag(sync=True)
-    camp = Tuple((1,1,1)).tag(sync=True)
-    camu = Tuple((0,1,0)).tag(sync=True) #TODO: interactively set this
     fpsLimit = Float(60.0).tag(sync=True) #maximum render rate
 
     # class variables
@@ -179,18 +176,21 @@ class PVDisplay(widgets.DOMWidget):
             self.__zoomCam(content['data'])
 
     def __cartToSphr(self, p):
+        #cartesian position into spherical
         r = np.linalg.norm(p)
         return np.array([r,
             math.atan2(p[0], p[2]),
             math.asin(p[1]/r)])
 
     def __sphrToCart(self, p):
+        #spherical coordinate position into cartesian
         return np.array([p[0]*math.sin(p[1])*math.cos(p[2]),
                 p[0]*math.sin(p[2]),
                 p[0]*math.cos(p[1])*math.cos(p[2])])
 
 
     def __rotateCam(self, d):
+        #rotates the camera around the focus in spherical
         phiLim = 1.5175
         cp = self.__cartToSphr(np.array(self.renV.CameraPosition) - np.array(self.renV.CameraFocalPoint))
         cp[1] -= self.rotateScale*d['x']
@@ -199,6 +199,7 @@ class PVDisplay(widgets.DOMWidget):
         self.render()
         
     def __panCam(self, d):
+        #translates pan delta into a translation vector at the focal point
         f = np.array(self.renV.CameraFocalPoint)
         p = np.array(self.renV.CameraPosition)-f
         u = np.array(self.renV.CameraViewUp)
@@ -216,6 +217,7 @@ class PVDisplay(widgets.DOMWidget):
         self.render()
 
     def __zoomCam(self, d):
+        #zooms by scaling the distance between camera and focus
         rlim = 0.00001 #minimum allowable radius
         f = np.array(self.renV.CameraFocalPoint)
         p = np.array(self.renV.CameraPosition)-f
@@ -233,8 +235,6 @@ class PVDisplay(widgets.DOMWidget):
             from dask.distributed import wait
             wait([r.render(self.camp, self.camf) for r in self.renderers])
         else:
-            #self.renV.CenterOfRotation = self.renV.CameraFocalPoint = self.camf
-            #self.renV.CameraPosition = self.camp
             self.pvs.Render(view=self.renV)
         self.frame = self.fetchFrame().tostring()
         self.frameNum += 1

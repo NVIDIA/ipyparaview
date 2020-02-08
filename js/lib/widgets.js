@@ -31,42 +31,6 @@ var PVDisplayModel = widgets.DOMWidgetModel.extend({
 /*
  * Helper functions for vector math
  */
-function norm(x){
-    return Math.sqrt(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]);
-}
-
-function normalize(x){
-    r = norm(x);
-    return [ x[0]/r, x[1]/r, x[2]/r ];
-}
-
-function cross(x, y){
-    return [ x[1]*y[2] - x[2]*y[1],
-             x[2]*y[0] - x[0]*y[2],
-             x[0]*y[1] - x[1]*y[0] ];
-}
-
-function cartToSphr(x){
-    var r = norm(x);
-    return [r,
-        Math.atan2(x[0], x[2]),
-        Math.asin(x[1]/r)];
-}
-
-function sphrToCart(x){
-    return [ x[0]*Math.sin(x[1])*Math.cos(x[2]),
-             x[0]*Math.sin(x[2]),
-             x[0]*Math.cos(x[1])*Math.cos(x[2]) ];
-}
-
-function vadd(x,y){
-    return [ x[0] + y[0], x[1] + y[1], x[2] + y[2] ];
-}
-function vscl(x,y){
-    return [ x[0]*y, x[1]*y, x[2]*y ];
-}
-
-
 var PVDisplayView = widgets.DOMWidgetView.extend({
         render: function(){
             this.model.on('change:frame', this.frameChange, this);
@@ -80,11 +44,6 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
             //convenience references
             let view = this;
             let model = view.model;
-            //var canvas = this.canvas;
-
-            cf = model.get('camf');
-            cp = cartToSphr(vadd(model.get('camp'), vscl(cf, -1.0)));
-            cu = model.get('camu');
 
             [this.canvas.width,this.canvas.height] = model.get('resolution');
 
@@ -122,52 +81,13 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
                 return md;
             };
 
-            /*
-            //mouse event throttling--wait throttlems between mouse events
-            const throttlems = 1000.0/20.0;
-            var lastMouseT = Date.now();
-            function updateCam(){
-                let mt = Date.now();
-                if(mt - lastMouseT > throttlems){
-                    model.set({"camp": vadd(sphrToCart(cp), cf), "camf": cf});
-                    model.save_changes(); //triggers state synchronization (I think)
-                    view.send({event: 'updateCam', 'data': 0.5}); //trigger a render
-                    lastMouseT = mt;
-                }
-            };
-            */
-
 
             // Mouse event handling -- drag and scroll
             function handleDrag(e){
-                /*
-                const scl = 5.0; //rotation scaling factor
-                const phiLim = 1.5175; //limit phi from reaching poles
-
-                let md = getMouseDelta(e);
-
-                cp[1] -= 5.0*md.x;
-                cp[2] = Math.max(-phiLim, Math.min(phiLim, cp[2]-5.0*md.y));
-                updateCam();
-                */
                 view.send({event: 'rotate', 'data': getMouseDelta(e)})
             };
 
             function handleMidDrag(e){
-                /*
-                const scl = 1.0/1.25;
-
-                let md = getMouseDelta(e);
-
-                let ccp = sphrToCart(cp);
-                let h = normalize(cross(ccp, cu)); //horizontal
-                let v = normalize(cross(ccp,  h)); //vertical
-                let d = vscl(vadd(vscl(h,md.x), vscl(v,md.y)), cp[0]*scl); //position delta
-                cf = vadd(cf, d);
-                //NOTE: cp is relative to cf
-
-                updateCam();
-                */
                 view.send({event: 'pan', 'data': getMouseDelta(e)})
             };
 
@@ -179,10 +99,6 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
                 e.stopPropagation();
                 let d = e.wheelDelta ? e.wheelDelta/wheelScl : e.detail ? -e.detail : 0;
                 if(d){
-                    /*
-                    cp[0] = Math.max(rlim, cp[0]*(1.0-dScl*d));
-                    updateCam();
-                    */
                     view.send({event: 'zoom', 'data': 1.0-dScl*d})
                 }
             };
