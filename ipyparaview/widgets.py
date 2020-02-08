@@ -17,6 +17,7 @@
 import ipywidgets as widgets
 from traitlets import Unicode, Int, Float, Bytes, Tuple, validate
 import time
+import math
 import numpy as np
 import threading
 
@@ -40,6 +41,7 @@ class PVDisplay(widgets.DOMWidget):
 
     # class variables
     instances = dict()
+    rotateScale = 5.0
 
     @classmethod
     def GetOrCreate(cls, ren, runAsync=True, **kwargs):
@@ -57,8 +59,6 @@ class PVDisplay(widgets.DOMWidget):
             raise RuntimeError(f"A PVDisplay instance already exists for this renderer. Use PVDisplay.GetOrCreate() to avoid this error.")
 
         super(PVDisplay, self).__init__(**kwargs) #must call super class init
-
-        import numpy as np
 
         # regular vars
         self.pvs, self.renV, self.w2i = None,None,None #used for Jupyter kernel rendering
@@ -160,7 +160,6 @@ class PVDisplay(widgets.DOMWidget):
             self.w2i.Update()
             imagedata = self.w2i.GetOutput()
             w,h,_ = imagedata.GetDimensions()
-            import numpy as np
             from vtk.util.numpy_support import vtk_to_numpy
             imagedata_np = vtk_to_numpy(
                     imagedata.GetPointData().GetScalars()).reshape((h,w,3))
@@ -168,13 +167,63 @@ class PVDisplay(widgets.DOMWidget):
                 mode='constant', constant_values=255))
 
     def _handle_custom_msg(self, content, buffers):
-        if content.get('event','') == 'updateCam':
+        self.content = content
+        if content['event'] == 'updateCam':
             self.updateCam()
+
+        if content['event'] == 'rotate':
+            self.__rotateCam(content['data'])
+        if content['event'] == 'pan':
+            self.__panCam(content['data'])
+        if content['event'] == 'zoom':
+            self.__zoomCam(content['data'])
+
+    def __cartToSphr(self, p):
+        r = np.linalg.norm(p)
+        return np.array([r,
+            math.atan2(p[0], p[2]),
+            math.asin(p[1]/r)])
+
+    def __sphrToCart(self, p):
+        return np.array([p[0]*math.sin(p[1])*math.cos(p[2]),
+                p[0]*math.sin(p[2]),
+                p[0]*math.cos(p[1])*math.cos(p[2])])
+
+
+    def __rotateCam(self, d):
+        phiLim = 1.5175
+        cp = self.__cartToSphr(np.array(self.renV.CameraPosition) - np.array(self.renV.CameraFocalPoint))
+        cp[1] -= self.rotateScale*d['x']
+        cp[2] = max(-phiLim, min(phiLim, cp[2]-self.rotateScale*d['y']))
+        self.renV.CameraPosition = self.renV.CameraFocalPoint + self.__sphrToCart(cp)
+        self.render()
+        
+    def __panCam(self, d):
+        f = np.array(self.renV.CameraFocalPoint)
+        p = np.array(self.renV.CameraPosition)-f
+        u = np.array(self.renV.CameraViewUp)
+
+        h = np.cross(p, u)
+        h /= np.linalg.norm(h)
+        v = np.cross(p, h)
+        v /= np.linalg.norm(v)
+
+        pd = (d['x']*h + d['y']*v)*np.linalg.norm(p)*2*math.tan(math.pi*self.renV.CameraViewAngle/360)
+
+        self.renV.CenterOfRotation = self.renV.CameraFocalPoint = f+pd
+        self.renV.CameraPosition = self.renV.CameraFocalPoint + p
+
+        self.render()
+
+    def __zoomCam(self, d):
+        rlim = 0.00001 #minimum allowable radius
+        f = np.array(self.renV.CameraFocalPoint)
+        p = np.array(self.renV.CameraPosition)-f
+        r = np.linalg.norm(p)
+        self.renV.CameraPosition = f + (max(rlim, r*d)/r)*p
 
 
     def __renderFrame(self):
-        import numpy as np
-
         tc = time.time()
         self.FRBuf[self.frameNum % self.FRBufSz] = 1.0/(tc - self.tp)
         self.tp = tc
@@ -184,8 +233,8 @@ class PVDisplay(widgets.DOMWidget):
             from dask.distributed import wait
             wait([r.render(self.camp, self.camf) for r in self.renderers])
         else:
-            self.renV.CenterOfRotation = self.renV.CameraFocalPoint = self.camf
-            self.renV.CameraPosition = self.camp
+            #self.renV.CenterOfRotation = self.renV.CameraFocalPoint = self.camf
+            #self.renV.CameraPosition = self.camp
             self.pvs.Render(view=self.renV)
         self.frame = self.fetchFrame().tostring()
         self.frameNum += 1

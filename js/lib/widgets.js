@@ -82,9 +82,9 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
             let model = view.model;
             //var canvas = this.canvas;
 
-            var cf = model.get('camf');
-            var cp = cartToSphr(vadd(model.get('camp'), vscl(cf, -1.0)));
-            var cu = model.get('camu');
+            cf = model.get('camf');
+            cp = cartToSphr(vadd(model.get('camp'), vscl(cf, -1.0)));
+            cu = model.get('camu');
 
             [this.canvas.width,this.canvas.height] = model.get('resolution');
 
@@ -106,7 +106,7 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
 
             //converts mouse from canvas space to NDC
             function getNDC(e){
-                let rect = canvas.getBoundingClientRect();
+                let rect = view.canvas.getBoundingClientRect();
 
                 //compute current mouse coords in NDC
                 let mx = (e.clientX - rect.left)/(rect.right-rect.left);
@@ -122,22 +122,25 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
                 return md;
             };
 
+            /*
             //mouse event throttling--wait throttlems between mouse events
             const throttlems = 1000.0/20.0;
             var lastMouseT = Date.now();
             function updateCam(){
-                var mt = Date.now();
+                let mt = Date.now();
                 if(mt - lastMouseT > throttlems){
                     model.set({"camp": vadd(sphrToCart(cp), cf), "camf": cf});
                     model.save_changes(); //triggers state synchronization (I think)
-                    view.send({event: 'updateCam', data: ''}); //trigger a render
+                    view.send({event: 'updateCam', 'data': 0.5}); //trigger a render
                     lastMouseT = mt;
                 }
             };
+            */
 
 
             // Mouse event handling -- drag and scroll
             function handleDrag(e){
+                /*
                 const scl = 5.0; //rotation scaling factor
                 const phiLim = 1.5175; //limit phi from reaching poles
 
@@ -146,9 +149,12 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
                 cp[1] -= 5.0*md.x;
                 cp[2] = Math.max(-phiLim, Math.min(phiLim, cp[2]-5.0*md.y));
                 updateCam();
+                */
+                view.send({event: 'rotate', 'data': getMouseDelta(e)})
             };
 
             function handleMidDrag(e){
+                /*
                 const scl = 1.0/1.25;
 
                 let md = getMouseDelta(e);
@@ -161,33 +167,37 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
                 //NOTE: cp is relative to cf
 
                 updateCam();
+                */
+                view.send({event: 'pan', 'data': getMouseDelta(e)})
             };
 
             function handleScroll(e){
                 const wheelScl = 40.0;
                 const dScl = 0.05;
-                const rlim = 0.00001;
 
                 e.preventDefault();
                 e.stopPropagation();
                 let d = e.wheelDelta ? e.wheelDelta/wheelScl : e.detail ? -e.detail : 0;
                 if(d){
+                    /*
                     cp[0] = Math.max(rlim, cp[0]*(1.0-dScl*d));
                     updateCam();
+                    */
+                    view.send({event: 'zoom', 'data': 1.0-dScl*d})
                 }
             };
 
             // Add event handlers to canvas
-            canvas.addEventListener('mousedown',function(e){
+            view.canvas.addEventListener('mousedown',function(e){
                 m0 = getNDC(e);
                 if(e.button == 0){
-                    canvas.addEventListener('mousemove',handleDrag,false);
+                    view.canvas.addEventListener('mousemove',handleDrag,false);
                 }else if(e.button == 1){
-                    canvas.addEventListener('mousemove',handleMidDrag,false);
+                    view.canvas.addEventListener('mousemove',handleMidDrag,false);
                 }
             }, false);
 
-            this.canvas.addEventListener('mouseup',function(e){
+            view.canvas.addEventListener('mouseup',function(e){
                 if(e.button == 0){
                     view.canvas.removeEventListener('mousemove',handleDrag,false);
                 }else if(e.button == 1){
@@ -195,7 +205,7 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
                 }
             }, false);
 
-            this.canvas.addEventListener('wheel', handleScroll, false);
+            view.canvas.addEventListener('wheel', handleScroll, false);
     },
 
     frameChange: function() {
