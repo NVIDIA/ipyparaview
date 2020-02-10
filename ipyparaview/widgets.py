@@ -28,8 +28,8 @@ class PVDisplay(widgets.DOMWidget):
     _model_name = Unicode('PVDisplayModel').tag(sync=True)
     _view_module = Unicode('ipyparaview').tag(sync=True)
     _model_module = Unicode('ipyparaview').tag(sync=True)
-    _view_module_version = Unicode('^0.1.1').tag(sync=True)
-    _model_module_version = Unicode('^0.1.1').tag(sync=True)
+    _view_module_version = Unicode('^0.1.2').tag(sync=True)
+    _model_module_version = Unicode('^0.1.2').tag(sync=True)
 
     # traitlets -- variables synchronized with front end
     frame = Bytes().tag(sync=True)
@@ -286,8 +286,8 @@ class VStream(widgets.DOMWidget):
     _model_name = Unicode('VStreamModel').tag(sync=True)
     _view_module = Unicode('ipyparaview').tag(sync=True)
     _model_module = Unicode('ipyparaview').tag(sync=True)
-    _view_module_version = Unicode('^0.1.1').tag(sync=True)
-    _model_module_version = Unicode('^0.1.1').tag(sync=True)
+    _view_module_version = Unicode('^0.1.2').tag(sync=True)
+    _model_module_version = Unicode('^0.1.2').tag(sync=True)
     url = Unicode('ws://localhost:9002').tag(sync=True)
     state = Unicode('').tag(sync=True)
 
