@@ -17,6 +17,7 @@
 import ipywidgets as widgets
 from traitlets import Unicode, Int, Float, Bytes, Tuple, validate
 import time
+import math
 import numpy as np
 import threading
 
@@ -27,19 +28,17 @@ class PVDisplay(widgets.DOMWidget):
     _model_name = Unicode('PVDisplayModel').tag(sync=True)
     _view_module = Unicode('ipyparaview').tag(sync=True)
     _model_module = Unicode('ipyparaview').tag(sync=True)
-    _view_module_version = Unicode('^0.1.1').tag(sync=True)
-    _model_module_version = Unicode('^0.1.1').tag(sync=True)
+    _view_module_version = Unicode('^0.1.2').tag(sync=True)
+    _model_module_version = Unicode('^0.1.2').tag(sync=True)
 
     # traitlets -- variables synchronized with front end
     frame = Bytes().tag(sync=True)
     resolution = Tuple((800,500)).tag(sync=True) #canvas resolution; w,h
-    camf = Tuple((0,0,0)).tag(sync=True)
-    camp = Tuple((1,1,1)).tag(sync=True)
-    camu = Tuple((0,1,0)).tag(sync=True) #TODO: interactively set this
     fpsLimit = Float(60.0).tag(sync=True) #maximum render rate
 
     # class variables
     instances = dict()
+    rotateScale = 5.0
 
     @classmethod
     def GetOrCreate(cls, ren, runAsync=True, **kwargs):
@@ -58,10 +57,8 @@ class PVDisplay(widgets.DOMWidget):
 
         super(PVDisplay, self).__init__(**kwargs) #must call super class init
 
-        import numpy as np
-
         # regular vars
-        self.pvs, self.renV, self.w2i = None,None,None #used for Jupyter kernel rendering
+        self.pvs, self.renv, self.w2i = None,None,None #used for Jupyter kernel rendering
         self.master, self.renderers = None,[] #used for Dask rendering
         self.mode = 'Jupyter'
         self.tp = time.time() #time of latest render
@@ -86,24 +83,24 @@ class PVDisplay(widgets.DOMWidget):
             self.renderers = ren
             self.master = [r for r in self.renderers if r.rank == 0][0]
             self.resolution = tuple(self.master.run(
-                    lambda self : list(self.renV.ViewSize),
+                    lambda self : list(self.renv.ViewSize),
                     []).result())
             cf = self.master.run(
-                    lambda self : list(self.renV.CameraFocalPoint),
+                    lambda self : list(self.renv.CameraFocalPoint),
                     []).result()
             cp = self.master.run(
-                    lambda self : list(self.renV.CameraPosition),
+                    lambda self : list(self.renv.CameraPosition),
                     []).result()
             self.camf = (cf[0], cf[1], cf[2])
             self.camp = (cp[0], cp[1], cp[2])
         else:
             import paraview.simple as pvs
             self.pvs = pvs
-            self.renV = ren
-            self.resolution = tuple(self.renV.ViewSize)
+            self.renv = ren
+            self.resolution = tuple(self.renv.ViewSize)
 
-            cf = self.renV.CameraFocalPoint
-            cp = self.renV.CameraPosition
+            cf = self.renv.CameraFocalPoint
+            cp = self.renv.CameraPosition
             self.camf = (cf[0], cf[1], cf[2])
             self.camp = (cp[0], cp[1], cp[2])
 
@@ -112,7 +109,7 @@ class PVDisplay(widgets.DOMWidget):
             self.w2i = vtkWindowToImageFilter()
             self.w2i.ReadFrontBufferOff()
             self.w2i.ShouldRerenderOff()
-            self.w2i.SetInput(self.renV.SMProxy.GetRenderWindow())
+            self.w2i.SetInput(self.renv.SMProxy.GetRenderWindow())
 
         self.frameNum = 0
         self.FRBufSz = 10
@@ -160,7 +157,6 @@ class PVDisplay(widgets.DOMWidget):
             self.w2i.Update()
             imagedata = self.w2i.GetOutput()
             w,h,_ = imagedata.GetDimensions()
-            import numpy as np
             from vtk.util.numpy_support import vtk_to_numpy
             imagedata_np = vtk_to_numpy(
                     imagedata.GetPointData().GetScalars()).reshape((h,w,3))
@@ -168,13 +164,90 @@ class PVDisplay(widgets.DOMWidget):
                 mode='constant', constant_values=255))
 
     def _handle_custom_msg(self, content, buffers):
-        if content.get('event','') == 'updateCam':
+        self.content = content
+        if content['event'] == 'updateCam':
             self.updateCam()
+
+        if content['event'] == 'rotate':
+            self.__rotateCam(content['data'])
+        if content['event'] == 'pan':
+            self.__panCam(content['data'])
+        if content['event'] == 'zoom':
+            self.__zoomCam(content['data'])
+
+    @staticmethod
+    def __normalize(v):
+        return v/np.linalg.norm(v)
+
+    @staticmethod
+    def __cartToSphr(p):
+        #cartesian position into spherical
+        r = np.linalg.norm(p)
+        return np.array([r,
+            math.atan2(p[0], p[2]),
+            math.asin(p[1]/r)])
+
+    @staticmethod
+    def __sphrToCart(p):
+        #spherical coordinate position into cartesian
+        return np.array([p[0]*math.sin(p[1])*math.cos(p[2]),
+                p[0]*math.sin(p[2]),
+                p[0]*math.cos(p[1])*math.cos(p[2])])
+
+
+    def __rotateCam(self, d):
+        #rotates the camera around the focus in spherical
+        phiLim = 1.5175
+
+        f = np.array(self.renv.CameraFocalPoint)
+        p = np.array(self.renv.CameraPosition) - np.array(self.renv.CameraFocalPoint)
+
+        #compute orthonormal basis corresponding to current up vector
+        b1 = PVDisplay.__normalize(np.array(self.renv.CameraViewUp))
+        b0 = PVDisplay.__normalize(np.cross(b1, p-f))
+        b2 = np.cross(b0, b1)
+
+        #compute matrices to convert to and from the up-vector basis
+        fromU = np.column_stack([b0,b1,b2])
+        toU = np.linalg.inv(fromU)
+
+        #rotate around the focus in spherical:
+        # - convert focus-relative camera pos to up vector basis, then spherical
+        # - apply mouse deltas as movements in spherical
+        # - convert back to cartesian, then to standard basis, then to absolute position
+        cp = PVDisplay.__cartToSphr( np.matmul(toU,p) )
+        cp[1] -= self.rotateScale*d['x']
+        cp[2] = max(-phiLim, min(phiLim, cp[2]-self.rotateScale*d['y']))
+        self.renv.CameraPosition = self.renv.CameraFocalPoint + np.matmul( fromU,PVDisplay.__sphrToCart(cp) )
+
+        self.render()
+        
+    def __panCam(self, d):
+        #translates pan delta into a translation vector at the focal point
+        f = np.array(self.renv.CameraFocalPoint)
+        p = np.array(self.renv.CameraPosition)-f
+        u = np.array(self.renv.CameraViewUp)
+
+        h = PVDisplay.normalize(np.cross(p, u))
+        v = PVDisplay.normalize(np.cross(p, h))
+
+        pd = (d['x']*h + d['y']*v)*np.linalg.norm(p)*2*math.tan(math.pi*self.renv.CameraViewAngle/360)
+
+        self.renv.CenterOfRotation = self.renv.CameraFocalPoint = f+pd
+        self.renv.CameraPosition = self.renv.CameraFocalPoint + p
+
+        self.render()
+
+    def __zoomCam(self, d):
+        #zooms by scaling the distance between camera and focus
+        rlim = 0.00001 #minimum allowable radius
+        f = np.array(self.renv.CameraFocalPoint)
+        p = np.array(self.renv.CameraPosition)-f
+        r = np.linalg.norm(p)
+        self.renv.CameraPosition = f + (max(rlim, r*d)/r)*p
 
 
     def __renderFrame(self):
-        import numpy as np
-
         tc = time.time()
         self.FRBuf[self.frameNum % self.FRBufSz] = 1.0/(tc - self.tp)
         self.tp = tc
@@ -184,9 +257,7 @@ class PVDisplay(widgets.DOMWidget):
             from dask.distributed import wait
             wait([r.render(self.camp, self.camf) for r in self.renderers])
         else:
-            self.renV.CenterOfRotation = self.renV.CameraFocalPoint = self.camf
-            self.renV.CameraPosition = self.camp
-            self.pvs.Render(view=self.renV)
+            self.pvs.Render(view=self.renv)
         self.frame = self.fetchFrame().tostring()
         self.frameNum += 1
         self.fps = np.average(self.FRBuf)
@@ -215,8 +286,8 @@ class VStream(widgets.DOMWidget):
     _model_name = Unicode('VStreamModel').tag(sync=True)
     _view_module = Unicode('ipyparaview').tag(sync=True)
     _model_module = Unicode('ipyparaview').tag(sync=True)
-    _view_module_version = Unicode('^0.1.1').tag(sync=True)
-    _model_module_version = Unicode('^0.1.1').tag(sync=True)
+    _view_module_version = Unicode('^0.1.2').tag(sync=True)
+    _model_module_version = Unicode('^0.1.2').tag(sync=True)
     url = Unicode('ws://localhost:9002').tag(sync=True)
     state = Unicode('').tag(sync=True)
 
