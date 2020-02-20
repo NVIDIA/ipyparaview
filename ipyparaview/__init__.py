@@ -64,11 +64,11 @@ class PVRenderActor:
         from vtk import vtkWindowToImageFilter
 
         # Create render view and image transfer filter objects
-        self.renV = pvs.CreateRenderView()
+        self.renv = pvs.CreateRenderView()
         self.w2i = vtkWindowToImageFilter()
         self.w2i.ReadFrontBufferOff()
         self.w2i.ShouldRerenderOff()
-        self.w2i.SetInput(self.renV.SMProxy.GetRenderWindow())
+        self.w2i.SetInput(self.renv.SMProxy.GetRenderWindow())
 
         # Make sure all ranks have initialized
         MPI.COMM_WORLD.Barrier()
@@ -78,9 +78,9 @@ class PVRenderActor:
     def render(self, p=None, f=None):
         """Render a frame and return it as a numpy array"""
         if p is not None:
-            self.renV.CameraPosition = p
+            self.renv.CameraPosition = p
         if f is not None:
-            self.renV.CenterOfRotation = self.renV.CameraFocalPoint = f
+            self.renv.CenterOfRotation = self.renv.CameraFocalPoint = f
 
         import time
         ts = time.time()
