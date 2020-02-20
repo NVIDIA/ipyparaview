@@ -52,21 +52,6 @@ class PVDisplay(widgets.DOMWidget):
         return instance
 
     def __init__(self, ren, runAsync=True, **kwargs):
-        if ren in PVDisplay.instances:
-            raise RuntimeError(f"A PVDisplay instance already exists for this renderer. Use PVDisplay.GetOrCreate() to avoid this error.")
-
-        super(PVDisplay, self).__init__(**kwargs) #must call super class init
-
-        # regular vars
-        self.pvs, self.renv, self.w2i = None,None,None #used for Jupyter kernel rendering
-        self.master, self.renderers = None,[] #used for Dask rendering
-        self.mode = 'Jupyter'
-        self.tp = time.time() #time of latest render
-        self.fps = 10.0
-        self.fpsOut = [] #FPS output ipywidgets; passed in from Jupyter
-        self.intyld = [0.05, 0.01] #interaction yield--period and duration
-        self.tiy = time.time() #time of last interaction yield
-
         # see if we can import Dask.distributed, then try guessing the render
         # mode based on the type of ren. Fallback to regular Jupyter rendering
         # otherwise
@@ -78,6 +63,20 @@ class PVDisplay(widgets.DOMWidget):
                 self.mode = 'Jupyter'
         except ImportError:
             self.mode = 'Jupyter'
+
+        if self.mode == 'Jupyter' and ren in PVDisplay.instances:
+            raise RuntimeError(f"A PVDisplay instance already exists for this renderer. Use PVDisplay.GetOrCreate() to avoid this error.")
+
+        super(PVDisplay, self).__init__(**kwargs) #must call super class init
+
+        # regular vars
+        self.pvs, self.renv, self.w2i = None,None,None #used for Jupyter kernel rendering
+        self.master, self.renderers = None,[] #used for Dask rendering
+        self.tp = time.time() #time of latest render
+        self.fps = 10.0
+        self.fpsOut = [] #FPS output ipywidgets; passed in from Jupyter
+        self.intyld = [0.05, 0.01] #interaction yield--period and duration
+        self.tiy = time.time() #time of last interaction yield
 
         if self.mode == 'Dask':
             self.renderers = ren
