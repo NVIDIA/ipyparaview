@@ -14,6 +14,9 @@
 # limitations under the License.
 ###############################################################################
 
+#Functions for handling camera interaction
+from .camera_models import *
+
 import ipywidgets as widgets
 from traitlets import Unicode, Int, Float, Bytes, Tuple, validate
 import time
@@ -174,76 +177,60 @@ class PVDisplay(widgets.DOMWidget):
         if content['event'] == 'zoom':
             self.__zoomCam(content['data'])
 
-    @staticmethod
-    def __normalize(v):
-        return v/np.linalg.norm(v)
-
-    @staticmethod
-    def __cartToSphr(p):
-        #cartesian position into spherical
-        r = np.linalg.norm(p)
-        return np.array([r,
-            math.atan2(p[0], p[2]),
-            math.asin(p[1]/r)])
-
-    @staticmethod
-    def __sphrToCart(p):
-        #spherical coordinate position into cartesian
-        return np.array([p[0]*math.sin(p[1])*math.cos(p[2]),
-                p[0]*math.sin(p[2]),
-                p[0]*math.cos(p[1])*math.cos(p[2])])
-
-
-    def __rotateCam(self, d):
+    def __rotateCam(self, mouseDelta):
         #rotates the camera around the focus in spherical
         phiLim = 1.5175
-
-        f = np.array(self.renv.CameraFocalPoint)
-        p = np.array(self.renv.CameraPosition) - np.array(self.renv.CameraFocalPoint)
-
-        #compute orthonormal basis corresponding to current up vector
-        b1 = PVDisplay.__normalize(np.array(self.renv.CameraViewUp))
-        b0 = PVDisplay.__normalize(np.cross(b1, p-f))
-        b2 = np.cross(b0, b1)
-
-        #compute matrices to convert to and from the up-vector basis
-        fromU = np.column_stack([b0,b1,b2])
-        toU = np.linalg.inv(fromU)
-
-        #rotate around the focus in spherical:
-        # - convert focus-relative camera pos to up vector basis, then spherical
-        # - apply mouse deltas as movements in spherical
-        # - convert back to cartesian, then to standard basis, then to absolute position
-        cp = PVDisplay.__cartToSphr( np.matmul(toU,p) )
-        cp[1] -= self.rotateScale*d['x']
-        cp[2] = max(-phiLim, min(phiLim, cp[2]-self.rotateScale*d['y']))
-        self.renv.CameraPosition = self.renv.CameraFocalPoint + np.matmul( fromU,PVDisplay.__sphrToCart(cp) )
+        if self.mode == 'Dask':
+            from dask.distributed import wait
+            wait([r.rotateCam(mouseDelta,self.rotateScale,phiLim) for r in self.renderers])
+        else:
+            (self.renv.CameraPosition,
+             self.renv.CameraFocalPoint,
+             self.renv.CameraViewUp) = rotateCameraTurntable(
+                     mouseDelta,
+                     self.renv.CameraPosition,
+                     self.renv.CameraFocalPoint,
+                     self.renv.CameraViewUp,
+                     self.rotateScale,
+                     phiLim)
 
         self.render()
         
-    def __panCam(self, d):
-        #translates pan delta into a translation vector at the focal point
-        f = np.array(self.renv.CameraFocalPoint)
-        p = np.array(self.renv.CameraPosition)-f
-        u = np.array(self.renv.CameraViewUp)
-
-        h = PVDisplay.normalize(np.cross(p, u))
-        v = PVDisplay.normalize(np.cross(p, h))
-
-        pd = (d['x']*h + d['y']*v)*np.linalg.norm(p)*2*math.tan(math.pi*self.renv.CameraViewAngle/360)
-
-        self.renv.CenterOfRotation = self.renv.CameraFocalPoint = f+pd
-        self.renv.CameraPosition = self.renv.CameraFocalPoint + p
+    def __panCam(self, mouseDelta):
+        #moves the camera with a 1:1 relation to current focal point
+        if self.mode == 'Dask':
+            from dask.distributed import wait
+            wait([r.panCam(mouseDelta) for r in self.renderers])
+        else:
+            (self.renv.CameraPosition,
+             self.renv.CameraFocalPoint,
+             self.renv.CameraViewUp) = panCameraTurntable(
+                     mouseDelta,
+                     self.renv.CameraPosition,
+                     self.renv.CameraFocalPoint,
+                     self.renv.CameraViewUp,
+                     self.renv.CameraViewAngle)
 
         self.render()
 
-    def __zoomCam(self, d):
+    def __zoomCam(self, mouseDelta):
         #zooms by scaling the distance between camera and focus
         rlim = 0.00001 #minimum allowable radius
-        f = np.array(self.renv.CameraFocalPoint)
-        p = np.array(self.renv.CameraPosition)-f
-        r = np.linalg.norm(p)
-        self.renv.CameraPosition = f + (max(rlim, r*d)/r)*p
+        if self.mode == 'Dask':
+            from dask.distributed import wait
+            wait([r.zoomCam(mouseDelta,rlim) for r in self.renderers])
+        else:
+
+            (self.renv.CameraPosition,
+             self.renv.CameraFocalPoint,
+             self.renv.CameraViewUp) = zoomCameraTurntable(
+                     mouseDelta,
+                     self.renv.CameraPosition,
+                     self.renv.CameraFocalPoint,
+                     self.renv.CameraViewUp,
+                     rlim)
+
+        self.render()
 
 
     def __renderFrame(self):
@@ -254,7 +241,7 @@ class PVDisplay(widgets.DOMWidget):
         #set the camera position, render, and get the output frame
         if self.mode == 'Dask':
             from dask.distributed import wait
-            wait([r.render(self.camp, self.camf) for r in self.renderers])
+            wait([r.render() for r in self.renderers])
         else:
             self.pvs.Render(view=self.renv)
         self.frame = self.fetchFrame().tostring()

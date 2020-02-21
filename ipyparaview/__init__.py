@@ -18,6 +18,8 @@ from ._version import version_info, __version__
 
 from .widgets import *
 
+from .camera_models import *
+
 def _jupyter_nbextension_paths():
     """Called by Jupyter Notebook Server to detect if it is a valid nbextension and
     to install the widget
@@ -75,18 +77,46 @@ class PVRenderActor:
         if self.rank == 0:
             print("All ranks ready for rendering")
 
-    def render(self, p=None, f=None):
-        """Render a frame and return it as a numpy array"""
-        if p is not None:
-            self.renv.CameraPosition = p
-        if f is not None:
-            self.renv.CenterOfRotation = self.renv.CameraFocalPoint = f
+    def rotateCam(self, mouseDelta, rotateScale, phiLim):
+        """Rotates the camera using the given mouse delta"""
+        (self.renv.CameraPosition,
+         self.renv.CameraFocalPoint,
+         self.renv.CameraViewUp) = rotateCameraTurntable(
+                 mouseDelta,
+                 self.renv.CameraPosition,
+                 self.renv.CameraFocalPoint,
+                 self.renv.CameraViewUp,
+                 rotateScale,
+                 phiLim)
 
+    def panCam(self, mouseDelta):
+        """Pans the camera using the given mouse delta"""
+        (self.renv.CameraPosition,
+         self.renv.CameraFocalPoint,
+         self.renv.CameraViewUp) = panCameraTurntable(
+                 mouseDelta,
+                 self.renv.CameraPosition,
+                 self.renv.CameraFocalPoint,
+                 self.renv.CameraViewUp,
+                 self.renv.CameraViewAngle)
+
+    def zoomCam(self, mouseDelta, rlim):
+        """Zooms the camera using the given mouse delta"""
+        (self.renv.CameraPosition,
+         self.renv.CameraFocalPoint,
+         self.renv.CameraViewUp) = zoomCameraTurntable(
+                 mouseDelta,
+                 self.renv.CameraPosition,
+                 self.renv.CameraFocalPoint,
+                 self.renv.CameraViewUp,
+                 rlim)
+
+    def render(self):
+        """Render a frame and return it as a numpy array"""
         import time
         ts = time.time()
-        self.pvs.Render()
+        self.pvs.Render(view=self.renv)
         if self.rank == 0:
-            #print("Frame", str(self.framenum)+":", time.time()-ts, "seconds")
             self.frametime = time.time()-ts
             self.framenum += 1
 
