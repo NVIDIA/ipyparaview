@@ -38,6 +38,7 @@ class PVDisplay(widgets.DOMWidget):
     frame = Bytes().tag(sync=True)
     resolution = Tuple((800,500)).tag(sync=True) #canvas resolution; w,h
     fpsLimit = Float(60.0).tag(sync=True) #maximum render rate
+    maxEventRate = Float(20.0).tag(sync=True) #maximum number of mouse events/s
 
     # class variables
     instances = dict()
@@ -220,7 +221,6 @@ class PVDisplay(widgets.DOMWidget):
             from dask.distributed import wait
             wait([r.zoomCam(mouseDelta,rlim) for r in self.renderers])
         else:
-
             (self.renv.CameraPosition,
              self.renv.CameraFocalPoint,
              self.renv.CameraViewUp) = zoomCameraTurntable(
