@@ -20,7 +20,6 @@ from .camera_models import *
 import ipywidgets as widgets
 from traitlets import Unicode, Int, Float, Bytes, Tuple, validate
 import time
-import math
 import numpy as np
 import threading
 

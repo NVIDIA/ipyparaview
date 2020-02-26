@@ -1,6 +1,8 @@
 import math
 import numpy as np
 
+__all__ = ['rotateCameraTurntable', 'panCameraTurntable', 'zoomCameraTurntable']
+
 def _normalize(v):
     return v/np.linalg.norm(v)
 
