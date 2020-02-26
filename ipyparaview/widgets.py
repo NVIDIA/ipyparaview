@@ -220,7 +220,6 @@ class PVDisplay(widgets.DOMWidget):
             from dask.distributed import wait
             wait([r.zoomCam(mouseDelta,rlim) for r in self.renderers])
         else:
-
             (self.renv.CameraPosition,
              self.renv.CameraFocalPoint,
              self.renv.CameraViewUp) = zoomCameraTurntable(
