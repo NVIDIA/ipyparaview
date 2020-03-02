@@ -33,13 +33,24 @@ var PVDisplayModel = widgets.DOMWidgetModel.extend({
  */
 var PVDisplayView = widgets.DOMWidgetView.extend({
         render: function(){
+            this.model.on('change:compressedFrame', this.compressedFrameChange, this);
             this.model.on('change:frame', this.frameChange, this);
 
             // Create 'div' and 'canvas', and attach them to the...erm, "el"
             this.renderWindow = document.createElement('div');
             this.canvas = document.createElement('canvas');
+
+            // for compressed frames
+            this.img = document.createElement('img');
+            this.img.setAttribute('draggable', false);
+            
+            // for raw frames
             this.renderWindow.appendChild(this.canvas);
             this.el.appendChild(this.renderWindow);
+
+            // make img invisible for now
+            this.displayMode = 'raw';
+            this.renderSurface = this.canvas;
 
             //convenience references
             let view = this;
@@ -65,7 +76,7 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
 
             //converts mouse from canvas space to NDC
             function getNDC(e){
-                let rect = view.canvas.getBoundingClientRect();
+                let rect = view.renderSurface.getBoundingClientRect();
 
                 //compute current mouse coords in NDC
                 let mx = (e.clientX - rect.left)/(rect.right-rect.left);
@@ -103,28 +114,59 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
                 }
             };
 
-            // Add event handlers to canvas
-            view.canvas.addEventListener('mousedown',function(e){
-                m0 = getNDC(e);
-                if(e.button == 0){
-                    view.canvas.addEventListener('mousemove',handleDrag,false);
-                }else if(e.button == 1){
-                    view.canvas.addEventListener('mousemove',handleMidDrag,false);
-                }
-            }, false);
+            // Add event handlers to render surfaces
+            function addListeners(surface) {
+                surface.addEventListener('mousedown',function(e){
+                    m0 = getNDC(e);
+                    if(e.button == 0){
+                        view.renderSurface.addEventListener('mousemove',handleDrag,false);
+                    }else if(e.button == 1){
+                        e.preventDefault();
+                        view.renderSurface.addEventListener('mousemove',handleMidDrag,false);
+                    }
+                }, false);
 
-            view.canvas.addEventListener('mouseup',function(e){
-                if(e.button == 0){
-                    view.canvas.removeEventListener('mousemove',handleDrag,false);
-                }else if(e.button == 1){
-                    view.canvas.removeEventListener('mousemove',handleMidDrag,false);
-                }
-            }, false);
+                surface.addEventListener('mouseup',function(e){
+                    if(e.button == 0){
+                        view.renderSurface.removeEventListener('mousemove',handleDrag,false);
+                    }else if(e.button == 1){
+                        view.renderSurface.removeEventListener('mousemove',handleMidDrag,false);
+                    }
+                }, false);
 
-            view.canvas.addEventListener('wheel', handleScroll, false);
+                surface.addEventListener('wheel', handleScroll, false);
+            };
+
+            addListeners(view.img);
+            addListeners(view.canvas);
+    },
+
+    setVisibility: function(element, visibility) {
+        if (visibility && ! this.renderWindow.contains(element)) {
+            this.renderWindow.appendChild(element);
+            this.renderSurface = element;
+        } else if (! visibility && this.renderWindow.contains(element)) {
+            this.renderWindow.removeChild(element);
+        }
+        return visibility;
+    },
+
+    ensureDisplayMode: function(mode) {
+        if (this.displayMode == mode) {
+            return;
+        }
+        if (mode == 'raw') {
+            this.setVisibility(this.canvas, true);
+            this.setVisibility(this.img, false);
+        } else {
+            this.setVisibility(this.canvas, false);
+            this.setVisibility(this.img, true);
+        }
+        this.displayMode = mode;
     },
 
     frameChange: function() {
+        this.ensureDisplayMode('raw');
         let ctx = this.canvas.getContext('2d');
         if(ctx){
             var imgData = ctx.createImageData(this.canvas.width,this.canvas.height);
@@ -137,6 +179,13 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
             }
             ctx.putImageData(imgData, 0, 0);
         }
+    },
+
+    compressedFrameChange: function() {
+        this.ensureDisplayMode('compressed');
+        let compressedFrame = new Uint8Array(this.model.get('compressedFrame').buffer);
+        var compressedFrameStr = new TextDecoder("utf-8").decode(compressedFrame);
+        this.img.src='data:image/jpeg;base64,' + compressedFrameStr;
     },
 });
 

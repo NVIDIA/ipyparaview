@@ -8,6 +8,7 @@ dependencies:
 - jupyter
 - jupyterlab
 - ipython
+- pillow
 - pip
 - pip:
     - python-language-server
