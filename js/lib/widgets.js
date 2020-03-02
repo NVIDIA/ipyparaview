@@ -93,24 +93,43 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
             };
 
 
+            var lastMouseT = Date.now();
+            var wheelAccum = 0.0;
+
+
             // Mouse event handling -- drag and scroll
             function handleDrag(e){
-                view.send({event: 'rotate', 'data': getMouseDelta(e)})
+                t = Date.now();
+                if(t - lastMouseT > 1000.0/model.get('maxEventRate')){
+                    view.send({event: 'rotate', 'data': getMouseDelta(e)});
+                    lastMouseT = t;
+                }
             };
 
             function handleMidDrag(e){
-                view.send({event: 'pan', 'data': getMouseDelta(e)})
+                t = Date.now();
+                if(t - lastMouseT > 1000.0/model.get('maxEventRate')){
+                    view.send({event: 'pan', 'data': getMouseDelta(e)});
+                    lastMouseT = t;
+                }
             };
 
             function handleScroll(e){
-                const wheelScl = 40.0;
+                const wheelScl = 1.0/40.0;
                 const dScl = 0.05;
 
                 e.preventDefault();
                 e.stopPropagation();
-                let d = e.wheelDelta ? e.wheelDelta/wheelScl : e.detail ? -e.detail : 0;
-                if(d){
-                    view.send({event: 'zoom', 'data': 1.0-dScl*d})
+                let d = e.wheelDelta ? e.wheelDelta*wheelScl : e.detail ? -e.detail : 0;
+                wheelAccum += d;
+
+                t = Date.now();
+                if(t - lastMouseT > 1000.0/model.get('maxEventRate')){
+                    if(wheelAccum){
+                        view.send({event: 'zoom', 'data': 1.0-dScl*wheelAccum});
+                    }
+                    wheelAccum = 0.0;
+                    lastMouseT = t;
                 }
             };
 

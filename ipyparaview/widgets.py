@@ -43,6 +43,7 @@ class PVDisplay(widgets.DOMWidget):
     compressedFrame = Bytes().tag(sync=True)
     resolution = Tuple((800,500)).tag(sync=True) #canvas resolution; w,h
     fpsLimit = Float(60.0).tag(sync=True) #maximum render rate
+    maxEventRate = Float(20.0).tag(sync=True) #maximum number of mouse events/s
 
     # class variables
     instances = dict()
