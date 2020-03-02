@@ -23,6 +23,11 @@ import time
 import numpy as np
 import threading
 
+# for jpeg / png transfer ("compress frames"):
+import base64
+from io import BytesIO
+from PIL import Image
+
 @widgets.register
 class PVDisplay(widgets.DOMWidget):
     """A ParaView interactive render widget"""
@@ -35,6 +40,7 @@ class PVDisplay(widgets.DOMWidget):
 
     # traitlets -- variables synchronized with front end
     frame = Bytes().tag(sync=True)
+    compressedFrame = Bytes().tag(sync=True)
     resolution = Tuple((800,500)).tag(sync=True) #canvas resolution; w,h
     fpsLimit = Float(60.0).tag(sync=True) #maximum render rate
 
@@ -53,7 +59,7 @@ class PVDisplay(widgets.DOMWidget):
             cls.instances.update({ ren : instance })
         return instance
 
-    def __init__(self, ren, runAsync=True, **kwargs):
+    def __init__(self, ren, runAsync=True, compressFrames=False, **kwargs):
         # see if we can import Dask.distributed, then try guessing the render
         # mode based on the type of ren. Fallback to regular Jupyter rendering
         # otherwise
@@ -72,6 +78,7 @@ class PVDisplay(widgets.DOMWidget):
         super(PVDisplay, self).__init__(**kwargs) #must call super class init
 
         # regular vars
+        self.compressFrames = compressFrames
         self.pvs, self.renv, self.w2i = None,None,None #used for Jupyter kernel rendering
         self.master, self.renderers = None,[] #used for Dask rendering
         self.tp = time.time() #time of latest render
@@ -230,6 +237,12 @@ class PVDisplay(widgets.DOMWidget):
 
         self.render()
 
+    def __compressFrame(self, frame):
+        img = Image.fromarray(frame[:,:,:3])
+        bytesIO = BytesIO()
+        img.save(bytesIO, format='jpeg', quality=50)
+        img_str = base64.b64encode(bytesIO.getvalue())
+        return img_str
 
     def __renderFrame(self):
         tc = time.time()
@@ -242,7 +255,11 @@ class PVDisplay(widgets.DOMWidget):
             wait([r.render() for r in self.renderers])
         else:
             self.pvs.Render(view=self.renv)
-        self.frame = self.fetchFrame().tostring()
+        uncompressedFrameNp = self.fetchFrame()
+        if self.compressFrames:
+            self.compressedFrame = self.__compressFrame(uncompressedFrameNp)
+        else:
+            self.frame = uncompressedFrameNp.tostring()
         self.frameNum += 1
         self.fps = np.average(self.FRBuf)
         if self.fpsOut is not None:
