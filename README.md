@@ -3,6 +3,12 @@ ipyparaview
 
 A widget for interactive server-side ParaView rendering. Note that this requires a pre-existing ParaView installation and ParaView's python libraries to be locatable via $PYTHONPATH--see the `scripts` folders for examples.
 
+
+Examples
+--------
+Example notebooks are avaible in the `notebooks` folder. They are designed to give a broad overview of how to use ipyparaview. New users will probably have the best luck jumping in to the Hello_Jupyter-ParaView.ipynb notebook, which demonstrates basic usage and setting up the ParaView display. The Iso-Surfaces_with_RTX.ipynb notebook demonstrates more advanced usage, with more extensive manipulation of the render state and interactive control. The Dask-MPI_Volume_Render.ipynb notebook demonstrates how to use multi-node rendering by running PVRenderActors on a Dask-MPI cluster.
+
+
 Installation
 ------------
 Note that both the regular and developer installs currently require nodejs (for npm) in addition to the regular tools.
