@@ -6,4 +6,4 @@ The build the package
     
 To test it and try installing locally:
 
-    conda install --use-local ipyparaview
+    conda install --use-local ipyparaview -c conda-forge
