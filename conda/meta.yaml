@@ -21,6 +21,7 @@ requirements:
     - nodejs>=10.0
     - setuptools
     - jupyter
-
   run:
     - python=3.7
+    - paraview
+    - jupyter
