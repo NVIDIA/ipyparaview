@@ -13,18 +13,18 @@ Installation
 ------------
 There are two ways to install ipyparaview, both of which rely on pip. The lightweight method is to point pip at the GitHub repo, and then enable the notebook extension (note: this will not enable the extension for Jupyter lab). The more fully-featured method is to download a copy of the source code and install from the local version. We typically run inside of a conda environment (see conda setup step in instructions for the full-feature install with conda)
 
-## Lightweight quick install
+##### Lightweight quick install
 
     $ pip install git+https://github.com/NVIDIA/ipyparaview.git
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
 
-## Fully-featured local source installation
+##### Fully-featured local source installation
 
     $ git clone https://github.com/NVIDIA/ipyparaview.git
     $ cd ipyparaview
     $ ./build.sh
 
-## Fully-featured local source installation (with conda)
+##### Fully-featured local source installation (with conda)
 
     $ git clone https://github.com/NVIDIA/ipyparaview.git
     $ cd ipyparaview
