@@ -1,7 +1,7 @@
 ipyparaview
 ===============================
 
-A widget for interactive server-side ParaView rendering. Note that this requires a pre-existing ParaView installation and ParaView's python libraries to be locatable via $PYTHONPATH--see the `scripts` folders for examples.
+A widget for interactive server-side ParaView rendering.
 
 
 Examples
@@ -11,33 +11,20 @@ Example notebooks are avaible in the `notebooks` folder. They are designed to gi
 
 Installation
 ------------
-Note that both the regular and developer installs currently require nodejs (for npm) in addition to the regular tools.
+There are two ways to install ipyparaview, both of which rely on pip. The lightweight method is to point pip at the GitHub repo, and then enable the notebook extension (note: this will not enable the extension for Jupyter lab). The more fully-featured method is to download a copy of the source code and install from the local version. We typically run inside of a conda environment (see optional conda environment setup step in instructions for the full-feature install)
 
-For a regular user installation:
+## Lightweight quick install
 
     $ pip install git+https://github.com/NVIDIA/ipyparaview.git
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
+
+## Fully-featured local source installation
+
+            $ git clone https://github.com/NVIDIA/ipyparaview.git
+            $ cd ipyparaview
+(*optional*) $ conda env create -f environment.yml && conda activate ipy_dev
+            $ ./build.sh
     
-From within a conda environment:
-
-    $ conda env create -f environment.yml
-    $ conda activate ipy_dev
-    $ ./rebuild.sh
-
-To install for jupyterlab
-
-    $ jupyter labextension install @jupyter-widgets/jupyterlab-manager
-    $ jupyter labextension install ipyparaview
-
-For a development installation (requires npm),
-
-    $ git clone https://github.com/NVIDIA/ipyparaview.git
-    $ cd ipyparaview
-    $ pip install -e .
-    $ jupyter nbextension install --py --symlink --sys-prefix ipyparaview
-    $ jupyter nbextension enable --py --sys-prefix ipyparaview
-    $ jupyter labextension install js (*optional*)
-
 
 Running
 -------
