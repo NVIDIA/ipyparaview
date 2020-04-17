@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<Plugins>
+  <Plugin name="AcceleratedAlgorithms" auto_load="0" />
+  <Plugin name="AnalyzeNIfTIReaderWriter" auto_load="0" />
+  <Plugin name="ArrowGlyph" auto_load="0" />
+  <Plugin name="BagPlotViewsAndFilters" auto_load="0" />
+  <Plugin name="CDIReader" auto_load="0" />
+  <Plugin name="Datamine" auto_load="0" />
+  <Plugin name="DigitalRockPhysics" auto_load="0" />
+  <Plugin name="EmbossingRepresentations" auto_load="0" />
+  <Plugin name="ExplicitStructuredGrid" auto_load="0" />
+  <Plugin name="FlipBookPlugin" auto_load="0" />
+  <Plugin name="GLTFReader" auto_load="0" />
+  <Plugin name="GMVReader" auto_load="0" />
+  <Plugin name="GenericIOReader" auto_load="0" />
+  <Plugin name="GeodesicMeasurement" auto_load="0" />
+  <Plugin name="HyperTreeGridADR" auto_load="0" />
+  <Plugin name="LagrangianParticleTracker" auto_load="0" />
+  <Plugin name="Moments" auto_load="0" />
+  <Plugin name="MooseXfemClip" auto_load="0" />
+  <Plugin name="NetCDFTimeAnnotationPlugin" auto_load="0" />
+  <Plugin name="NonOrthogonalSource" auto_load="0" />
+  <Plugin name="PanoramicProjectionView" auto_load="0" />
+  <Plugin name="ParFlow" auto_load="0" />
+  <Plugin name="SLACTools" auto_load="0" />
+  <Plugin name="SierraPlotTools" auto_load="0" />
+  <Plugin name="StreamLinesRepresentation" auto_load="0" />
+  <Plugin name="StreamingParticles" auto_load="0" />
+  <Plugin name="SurfaceLIC" auto_load="0" />
+  <Plugin name="ThickenLayeredCells" auto_load="0" />
+  <Plugin name="VRPlugin" auto_load="0" />
+  <Plugin name="VTKmFilters" auto_load="0" />
+  <Plugin name="pvNVIDIAIndeX" auto_load="0" />
+  <Plugin name="VortexFinder" auto_load="0" />
+</Plugins>
