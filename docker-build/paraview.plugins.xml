@@ -30,6 +30,6 @@
   <Plugin name="ThickenLayeredCells" auto_load="0" />
   <Plugin name="VRPlugin" auto_load="0" />
   <Plugin name="VTKmFilters" auto_load="0" />
-  <Plugin name="pvNVIDIAIndeX" auto_load="0" />
+  <Plugin name="pvNVIDIAIndeX" auto_load="1" />
   <Plugin name="VortexFinder" auto_load="0" />
 </Plugins>
