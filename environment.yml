@@ -1,14 +1,19 @@
 # Environment for ipyparaview with jupyterlab
-name: ipy_dev
+name: ipy_pv_dev
 channels:
-- conda-forge
+  - conda-forge
 dependencies:
-- python=3.7.4
-- ipywidgets
-- jupyter
-- jupyterlab
-- ipython
-- pillow
-- pip
-- pip:
-    - python-language-server
+  - python=3.7.4
+  - ipywidgets
+  - jupyter
+  - jupyterlab
+  - nb_conda_kernels
+  - ipython
+  - pillow
+  - paraview
+  - nodejs
+  - numpy
+  - matplotlib
+  - pip
+  # - pip:
+  #     - python-language-server

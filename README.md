@@ -15,7 +15,7 @@ For a regular user installation:
 From within a conda environment:
 
     $ conda env create -f environment.yml
-    $ conda activate ipy_dev
+    $ conda activate ipy_pv_dev
     $ ./rebuild.sh
 
 To install for jupyterlab
@@ -37,7 +37,7 @@ Running
 -------
 Within a conda environment
 
-    $ conda activate ipy_dev
+    $ conda activate ipy_pv_dev
     $ export LD_LIBRARY_PATH=$PVPATH/lib/
     $ export PYTHONPATH=$PVPATH/lib/python3.7/site-packages/
     $ jupyter notebook
