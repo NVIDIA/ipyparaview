@@ -5,13 +5,13 @@ WORKDIR /root
 COPY . ./ipyparaview/
 WORKDIR /root/ipyparaview
 
-# Headless display stuff
+# # Headless display stuff
 # RUN apt-get update
-RUN apt-get install -y libgl1-mesa-dev
+RUN apt-get install -y libgl1-mesa-dev xvfb
 # RUN which Xvfb
 # ARG DISPLAY=:99.0
 # RUN Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-# Give XVfb a chance to set up
+# # Give Xvfb a chance to set up
 # RUN sleep 3
 
 RUN conda install -c conda-forge nb_conda_kernels
