@@ -11,7 +11,7 @@ For a regular user installation:
 
     $ pip install git+https://github.com/NVIDIA/ipyparaview.git
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
-    
+
 From within a conda environment:
 
     $ conda env create -f environment.yml
@@ -41,5 +41,12 @@ Within a conda environment
     $ export LD_LIBRARY_PATH=$PVPATH/lib/
     $ export PYTHONPATH=$PVPATH/lib/python3.7/site-packages/
     $ jupyter notebook
-    
 
+
+Or from a Docker container, create an image by:
+
+    $ docker build -t ipp .
+
+Then run that container by:
+
+    $ docker run -p 8888:8888 ipp

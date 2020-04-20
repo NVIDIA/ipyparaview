@@ -1,0 +1,10 @@
+ipywidgets
+jupyter
+jupyterlab
+ipython
+pillow
+paraview
+nodejs
+numpy
+matplotlib
+scipy
