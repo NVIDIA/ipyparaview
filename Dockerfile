@@ -27,9 +27,12 @@ RUN jupyter nbextension install --py --symlink --sys-prefix ipyparaview
 RUN jupyter nbextension enable --py --sys-prefix ipyparaview
 RUN jupyter labextension install js
 
+RUN jupyter lab clean \
+  && jupyter lab build
+
 # Set up for use
 WORKDIR /root/ipyparaview/notebooks
 
 ENTRYPOINT ["tini", "-g", "--", "start_xvfb.sh"]
 # CMD ["/bin/bash"]
-CMD ["jupyter", "notebook", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root"]
+CMD ["jupyter", "lab", "--port=8888", "--no-browser", "--ip=0.0.0.0", "--allow-root"]
