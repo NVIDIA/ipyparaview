@@ -43,3 +43,13 @@ Within a conda environment
     $ jupyter notebook
     
 
+Demos
+-----
+Our `conda` environment installs all required dependencies for our demos.
+
+```
+conda activate ipy_dev
+export PYTHONPATH=$PVPATH/lib/python3.7/site-packages/ # or `conda install paraview`
+cd notebooks/
+jupyter notebook
+```

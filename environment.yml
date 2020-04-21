@@ -2,13 +2,19 @@
 name: ipy_dev
 channels:
 - conda-forge
+- nvidia
+- rapidsai
+- defaults
 dependencies:
-- python=3.7.4
-- ipywidgets
-- jupyter
-- jupyterlab
+- python
 - ipython
 - pillow
 - pip
+- numpy
+- nodejs
+- rapids=0.13 # necessary for the MNIST demo
 - pip:
-    - python-language-server
+    - ipywidgets
+    - jupyter
+    - jupyterlab
+    - pvgeo # necessary for the MNIST demo
