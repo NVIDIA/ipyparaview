@@ -10,7 +10,7 @@ Note that both the regular and developer installs currently require nodejs (for 
 
 For a regular user installation:
 
-    $ pip install git+https://github.com/NVIDIA/ipyparaview.git
+    $ pip install git+https://github.com/Kitware/ipyparaview.git
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
 
 From within a conda environment:
@@ -26,12 +26,12 @@ To install for jupyterlab
 
 For a development installation (requires npm),
 
-    $ git clone https://github.com/NVIDIA/ipyparaview.git
+    $ git clone https://github.com/Kitware/ipyparaview.git
     $ cd ipyparaview
     $ pip install -e .
     $ jupyter nbextension install --py --symlink --sys-prefix ipyparaview
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
-    $ jupyter labextension install js (*optional*)
+    $ jupyter labextension install js
 
 
 ## Running
