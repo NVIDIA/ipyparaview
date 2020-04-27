@@ -1,0 +1,28 @@
+# run with: conda build . -c conda-forge
+# asdf 
+{% set data = load_setup_py_data() %}
+
+package:
+  name: ipyparaview
+  version: {{ data.get('version') }}
+
+source:
+  path: ../
+
+build:
+  script: $PYTHON -m pip install --no-deps --ignore-installed .
+  number: 1
+
+requirements:
+  host:
+    - python=3.7
+    - pip
+  build:
+    - python=3.7
+    - nodejs>=10.0
+    - setuptools
+    - jupyter
+  run:
+    - python=3.7
+    - paraview
+    - jupyter
