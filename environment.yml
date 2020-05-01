@@ -1,20 +1,20 @@
 # Environment for ipyparaview with jupyterlab
-name: ipy_dev
+name: ipy_pv_dev
 channels:
-- conda-forge
-- nvidia
-- rapidsai
-- defaults
+  - conda-forge
 dependencies:
-- python
-- ipython
-- pillow
-- pip
-- numpy
-- nodejs
-- rapids=0.13 # necessary for the MNIST demo
-- pip:
-    - ipywidgets
-    - jupyter
-    - jupyterlab
-    - pvgeo # necessary for the MNIST demo
+  - python=3.7.4
+  - ipywidgets
+  - jupyter
+  - jupyterlab
+  - nb_conda_kernels
+  - ipython
+  - pillow
+  - paraview
+  - nodejs
+  - numpy
+  - matplotlib
+  - rapids=0.13 # necessary for the MNIST demo
+  - pip
+  # - pip:
+  #     - python-language-server
