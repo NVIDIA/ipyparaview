@@ -115,18 +115,14 @@ var PVDisplayView = widgets.DOMWidgetView.extend({
             };
 
             function handleScroll(e){
-                const wheelScl = 1.0/40.0;
-                const dScl = 0.05;
-
                 e.preventDefault();
                 e.stopPropagation();
-                let d = e.wheelDelta ? e.wheelDelta*wheelScl : e.detail ? -e.detail : 0;
-                wheelAccum += d;
+                wheelAccum += Math.sign(e.deltaY);
 
                 t = Date.now();
                 if(t - lastMouseT > 1000.0/model.get('maxEventRate')){
                     if(wheelAccum){
-                        view.send({event: 'zoom', 'data': 1.0-dScl*wheelAccum});
+                        view.send({event: 'zoom', 'data': wheelAccum});
                     }
                     wheelAccum = 0.0;
                     lastMouseT = t;

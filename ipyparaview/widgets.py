@@ -48,6 +48,7 @@ class PVDisplay(widgets.DOMWidget):
     # class variables
     instances = dict()
     rotateScale = 5.0
+    zoomScale = 0.05
 
     @classmethod
     def GetOrCreate(cls, ren, runAsync=True, **kwargs):
@@ -223,6 +224,7 @@ class PVDisplay(widgets.DOMWidget):
     def __zoomCam(self, mouseDelta):
         #zooms by scaling the distance between camera and focus
         rlim = 0.00001 #minimum allowable radius
+        d = (1.0+self.zoomScale)**mouseDelta
         if self.mode == 'Dask':
             from dask.distributed import wait
             wait([r.zoomCam(mouseDelta,rlim) for r in self.renderers])
@@ -230,7 +232,7 @@ class PVDisplay(widgets.DOMWidget):
             (self.renv.CameraPosition,
              self.renv.CameraFocalPoint,
              self.renv.CameraViewUp) = zoomCameraTurntable(
-                     mouseDelta,
+                     d,
                      self.renv.CameraPosition,
                      self.renv.CameraFocalPoint,
                      self.renv.CameraViewUp,
