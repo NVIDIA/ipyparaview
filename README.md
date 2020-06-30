@@ -29,7 +29,14 @@ From within a conda environment:
 
     $ git clone https://github.com/NVIDIA/ipyparaview.git
     $ cd ipyparaview
-    $ ./build.sh
+
+on Linux / MacOS:
+
+    ./build.sh
+
+on Windows PowerShell, first ensuring you've enabled Windows Developer mode to allow creating symlinks:
+
+    ./build.ps1
 
 ##### Fully-featured local source installation (with conda)
 
