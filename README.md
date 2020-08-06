@@ -33,7 +33,7 @@ From within a conda environment:
 
 ##### Fully-featured local source installation (with conda)
 
-    $ git clone https://github.com/Kitware/ipyparaview.git
+    $ git clone https://github.com/NVIDIA/ipyparaview.git
     $ cd ipyparaview
     $ pip install -e .
     $ jupyter nbextension install --py --symlink --sys-prefix ipyparaview
