@@ -227,7 +227,7 @@ class PVDisplay(widgets.DOMWidget):
         d = (1.0+self.zoomScale)**mouseDelta
         if self.mode == 'Dask':
             from dask.distributed import wait
-            wait([r.zoomCam(mouseDelta,rlim) for r in self.renderers])
+            wait([r.zoomCam(d,rlim) for r in self.renderers])
         else:
             (self.renv.CameraPosition,
              self.renv.CameraFocalPoint,
