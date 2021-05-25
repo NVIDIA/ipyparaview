@@ -23,11 +23,14 @@ from io import BytesIO
 import ipywidgets as widgets
 import numpy as np
 from PIL import Image
-from traitlets import Bytes, Float, Int, Tuple, Unicode, validate
+from traitlets import Bytes, Float, Tuple, Unicode
 
 # Functions for handling camera interaction
-from .camera_models import *
-
+from .camera_models import (
+    rotateCameraTurntable,
+    panCameraTurntable,
+    zoomCameraTurntable,
+)
 
 @widgets.register
 class PVDisplay(widgets.DOMWidget):

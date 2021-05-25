@@ -13,3 +13,5 @@ __version__ = "%s.%s.%s%s" % (
     if version_info[3] == "final"
     else _specifier_[version_info[3]] + str(version_info[4]),
 )
+
+__all__ = ["__version__", "version_info"]

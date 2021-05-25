@@ -14,9 +14,16 @@
 # limitations under the License.
 ###############################################################################
 
-from ._version import __version__, version_info
-from .camera_models import *
-from .widgets import *
+from ._version import __version__
+from .camera_models import (
+    rotateCameraTurntable,
+    panCameraTurntable,
+    zoomCameraTurntable,
+)
+from .widgets import PVDisplay, VStream
+
+
+__all__ = ["PVDisplay", "VStream"]
 
 
 def _jupyter_nbextension_paths():
