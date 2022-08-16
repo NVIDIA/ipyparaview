@@ -16,7 +16,7 @@ There are two ways to install ipyparaview, both of which rely on pip. The lightw
 
 ##### Lightweight quick install
 
-    $ pip install git+https://github.com/Kitware/ipyparaview.git
+    $ pip install git+https://github.com/NVIDIA/ipyparaview.git
     $ jupyter nbextension enable --py --sys-prefix ipyparaview
 
 From within a conda environment:
@@ -33,7 +33,7 @@ From within a conda environment:
 
 ##### Fully-featured local source installation (with conda)
 
-    $ git clone https://github.com/Kitware/ipyparaview.git
+    $ git clone https://github.com/NVIDIA/ipyparaview.git
     $ cd ipyparaview
     $ pip install -e .
     $ jupyter nbextension install --py --symlink --sys-prefix ipyparaview
