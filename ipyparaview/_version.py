@@ -1,9 +1,17 @@
 # Module version
-version_info = (0, 1, 2, 'beta', 0)
+version_info = (0, 1, 2, "beta", 0)
 
 # Module version stage suffix map
-_specifier_ = {'alpha': 'a', 'beta': 'b', 'candidate': 'rc', 'final': ''}
+_specifier_ = {"alpha": "a", "beta": "b", "candidate": "rc", "final": ""}
 
 # Module version accessible using ipyparaview.__version__
-__version__ = '%s.%s.%s%s'%(version_info[0], version_info[1], version_info[2],
-  '' if version_info[3]=='final' else _specifier_[version_info[3]]+str(version_info[4]))
+__version__ = "%s.%s.%s%s" % (
+    version_info[0],
+    version_info[1],
+    version_info[2],
+    ""
+    if version_info[3] == "final"
+    else _specifier_[version_info[3]] + str(version_info[4]),
+)
+
+__all__ = ["__version__", "version_info"]
