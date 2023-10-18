@@ -147,6 +147,7 @@ setup_args = {
     'install_requires': [
         'ipywidgets>=7.0.0',
         'pillow>=7.0.0'
+        'numpy',
     ],
     'packages': find_packages(),
     'zip_safe': False,
